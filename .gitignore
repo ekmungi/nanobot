@@ -1,11 +1,4 @@
-.assets
-.env
-*.pyc
-dist/
-build/
-docs/
-*.egg-info/
-*.egg
+# Python artifacts
 *.pyc
 *.pyo
 *.pyd
@@ -13,8 +6,55 @@ docs/
 *.pyz
 *.pywz
 *.pyzz
-.venv/
 __pycache__/
+*.egg-info/
+*.egg
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+
+# Build artifacts
+dist/
+build/
+
+# Package managers
 poetry.lock
+uv.lock
+
+# Testing
 .pytest_cache/
-tests/
+.coverage
+htmlcov/
+
+# Test outputs (extracted pages, debug files)
+tests/extracted_page.md
+tests/cleaned_page.md
+tests/section_*.md
+tests/_debug_*.txt
+
+# IDE / Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Secrets / config (defense-in-depth — config lives at ~/.nanobot/)
+.env
+config.json
+*.secret
+*.key
+
+# Claude Code project-specific
+.claude/
+.assets
+
+# Temporary files
+*.tmp
+*.log

@@ -1,0 +1,39 @@
+---
+name: filesystem-tools
+description: "Use filesystem MCP tools to browse, read, write, and search files in user directories (Documents, Downloads, etc.). Use when the user asks to find, read, or manage files outside the workspace."
+---
+
+# Filesystem Tool Routing
+
+Use EXACTLY these tool names for filesystem MCP operations.
+
+## Tool Reference
+
+| Task | Tool | Key parameters |
+|---|---|---|
+| List files in directory | `filesystem__list_directory` | `path` |
+| Read a file | `filesystem__read_file` | `path` |
+| Write/create a file | `filesystem__write_file` | `path`, `content` |
+| Move/rename a file | `filesystem__move_file` | `source`, `destination` |
+| Search for files | `filesystem__search_files` | `path`, `pattern` (glob) |
+| Get file metadata | `filesystem__get_file_info` | `path` |
+| List allowed directories | `filesystem__list_allowed_directories` | (none) |
+| Create a directory | `filesystem__create_directory` | `path` |
+
+## Notes
+
+- Only files within the allowed directories can be accessed
+- Use `filesystem__list_allowed_directories` first if unsure what paths are available
+- Paths use forward slashes: `C:/Users/ekmun/Downloads/report.pdf`
+- The `search_files` tool uses glob patterns (e.g., `*.pdf`, `**/*.txt`)
+
+## vs Built-in File Tools
+
+The filesystem MCP tools access the directories configured in `mcpServers` config.
+The built-in `read_file` / `write_file` tools access the workspace directory.
+
+| Use filesystem MCP when... | Use built-in when... |
+|---|---|
+| Working with user's documents | Working with agent memory/notes |
+| Browsing Downloads folder | Editing AGENTS.md or MEMORY.md |
+| Searching for files by pattern | Creating/editing workspace files |

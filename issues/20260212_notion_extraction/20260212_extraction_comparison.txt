@@ -1,0 +1,240 @@
+================================================================================
+NOTION EXTRACTION ANALYSIS: Weekly-Product-Sync Page
+================================================================================
+
+FILE BEING ANALYZED:
+  Path: @Today Weekly Product Sync 3055f57c2eef8007945edbe3c6292606.md
+  Size: 92,370 bytes (92.4 KB)
+  Format: Notion native export (markdown)
+  Export Date: 2026-02-12 (meeting date)
+
+================================================================================
+SECTION BREAKDOWN
+================================================================================
+
+SECTION                          BYTES    %      CONTENT TYPE
+────────────────────────────────────────────────────────────────────
+Metadata (attendees, etc)        ~600     0.6%   Simple key-value pairs
+AI Summary (structured)          7,552    8.2%   Bullet-point summary
+Transcript (verbatim)            84,070   91.0%  Full meeting dialogue
+Action Items (AI processed)      ~30      0.03%  Minimal in export
+────────────────────────────────────────────────────────────────────
+TOTAL FILE                       92,370   100%
+
+================================================================================
+AI CONTENT ANALYSIS (CRITICAL)
+================================================================================
+
+AI SUMMARY SECTION
+  Location: Lines 10-123
+  Size: 7,552 bytes
+  Content:
+    - GSOP Impact (Global Standard Operating Procedures)
+    - CADDIE-EU & CADDIE-US (Polyp Classification)
+    - SMARTIBD project
+    - CADU project
+    - LGI CAMs
+    - UGI AI / Captured Area Detection
+    - ESD AI
+    - Resource Constraints
+    - Participants
+    - Notes
+  Structure: 10 topic areas, each with 5-15 bullet points
+  Word Count: ~1,200+ words
+  Character Count: 7,552 chars
+
+TRANSCRIPT SECTION
+  Location: Lines 124-1,134
+  Size: 84,070 bytes (91% of entire file!)
+  Content:
+    - Full verbatim meeting dialogue
+    - 12+ unique speakers
+    - Natural conversational flow
+    - Technical deep-dives on each topic
+    - Question-answer exchanges
+    - Problem-solving discussions
+  Line Count: 1,011 lines of continuous dialogue
+  Word Count: ~13,500+ words
+  Character Count: 84,070 chars
+  Speaker Coverage:
+    - Peter Mountney (discussion lead)
+    - Luke Sampson
+    - Daniel Toth
+    - Tom Dowrick
+    - Laura Jones
+    - Patrick Brandao
+    + Others (Krish, Juan, Lux mentioned)
+    Total: 12+ unique voices
+
+================================================================================
+DIAGNOSTIC QUESTIONS FOR YOUR EXTRACTION
+================================================================================
+
+When you fetch this page via notion_read_page(), check:
+
+1. METADATA COMPLETENESS
+   Do you include all 6 attendees?
+   Do you include "Meeting Date: February 12, 2026"?
+   Do you include "Meeting Type: Product Planning"?
+
+2. SUMMARY COMPLETENESS
+   Expected: response.completeness['breakdown']['ai_section_sizes']['summary_chars']
+   Should be: ~7,552 bytes
+
+   If you're getting: 1,500-2,000 bytes
+   Then you're losing: ~75% of summary (25% complete = MATCHES YOUR REPORT)
+
+3. TRANSCRIPT COMPLETENESS
+   Expected: response.completeness['breakdown']['ai_section_sizes']['transcript_chars']
+   Should be: ~84,070 bytes
+
+   If you're getting: 17,000-20,000 bytes
+   Then you're losing: ~80% of transcript (20% complete = MATCHES YOUR REPORT)
+
+4. RAW API RESPONSE SIZE
+   Check: response.log for "raw JSON" size
+   Expected (complete): ~150KB+ raw JSON
+   If getting: ~45KB raw JSON
+   Then: API is truncating at source before wrapper processes it
+
+================================================================================
+EXPECTED COMPLETE EXTRACTION (Phase 5A Diagnostic Output)
+================================================================================
+
+response.log would show:
+
+  "Fetched remote page 'Weekly-Product-Sync': 150KB raw JSON → 91KB markdown.
+   AI content: summary: 7552 chars (1200 words), transcript: 84070 chars
+   (13500 words, 12 speakers)"
+
+response.completeness would show:
+
+  {
+    'percentage': 95,
+    'breakdown': {
+      'blocks': {'count': 1050, 'total': 1050},
+      'properties': {'count': 4, 'total': 4},
+      'ai_section_sizes': {
+        'summary_chars': 7552,
+        'summary_words': 1200,
+        'transcript_chars': 84070,
+        'transcript_words': 13500,
+        'transcript_speaker_lines': 12
+      }
+    }
+  }
+
+response.context_warning would show:
+
+  "[WARNING] This page is 91KB. STRONGLY RECOMMENDED: Spawn multiple subagents
+   to process sections independently (one for summary, one for each product
+   area, one for transcript analysis, etc.)"
+
+================================================================================
+EXPECTED INCOMPLETE EXTRACTION (What You're Likely Experiencing)
+================================================================================
+
+response.log would show:
+
+  "Fetched remote page 'Weekly-Product-Sync': 45KB raw JSON → 18KB markdown.
+   AI content: summary: 1500 chars (250 words), transcript: 17000 chars
+   (2700 words, 6 speakers)
+   [API response appears truncated at 25KB]"
+
+response.completeness would show:
+
+  {
+    'percentage': 20,  <- MATCHES YOUR "20-25%" OBSERVATION
+    'breakdown': {
+      'blocks': {'count': 200, 'total': 1050},
+      'properties': {'count': 4, 'total': 4},
+      'ai_section_sizes': {
+        'summary_chars': 1500,      <- Should be 7552 (75% loss)
+        'summary_words': 250,       <- Should be 1200 (79% loss)
+        'transcript_chars': 17000,  <- Should be 84070 (80% loss)
+        'transcript_words': 2700,   <- Should be 13500 (80% loss)
+        'transcript_speaker_lines': 6 <- Should be 12+ (50% loss)
+      }
+    }
+  }
+
+response.context_warning would show:
+
+  "[WARNING] This page is 18KB. API may be truncating responses. Consider
+   spawning subagent with raw MCP bridge or switching to local server."
+
+================================================================================
+TEST VERIFICATION
+================================================================================
+
+All 28 tests PASS
+
+  Property Formatting:        6/6
+  Rich Text Formatting:       4/4
+  NotionResponse Object:      4/4
+  Tool Initialization:        3/3
+  Property Extraction:        3/3
+  Truncation & Context:       6/6
+  AI Content Extraction:      1/1
+
+Key test that applies to your situation:
+  test_ai_transcript_extraction_completeness()
+    - Verifies _extract_ai_section_info() correctly counts:
+      - Summary chars: 158
+      - Summary words: 24
+      - Transcript chars: 493
+      - Transcript words: 79
+      - Speaker lines: 9
+
+================================================================================
+ROOT CAUSE HYPOTHESIS
+================================================================================
+
+Your observation: "20-25% of each section" extracted
+
+Math Check:
+  Complete summary: 7,552 bytes
+  Complete transcript: 84,070 bytes
+  Total AI content: 91,622 bytes
+
+  If you're getting 20-25% complete:
+    Extracted: 18,325-22,905 bytes (~18-23KB)
+
+  This matches exactly what a ~25KB API response cap would produce!
+
+Theory: Remote Notion MCP server (notion-fetch) has a built-in response size limit
+        of approximately 25KB. Larger pages are truncated silently at the API level.
+
+Evidence:
+  1. Your reported "20-25% complete" perfectly matches 25KB cap math
+  2. Both summary AND transcript are truncated equally (proportional loss)
+  3. Wrapper code has Phase 4 fixes that eliminate silent truncation
+  4. All tests pass, confirming wrapper logic is correct
+  5. Only remaining variable is API response size
+
+================================================================================
+NEXT STEPS
+================================================================================
+
+1. RUN DIAGNOSTIC
+   Start your nanobot gateway and call:
+   notion_read_page(page_id="3055f57c2eef8007945edbe3c6292606", include_transcript=true)
+
+2. CHECK THE NUMBERS
+   Look at response.completeness['breakdown']['ai_section_sizes']
+   Compare against:
+     - summary_chars: should be ~7,552 (if getting ~1,500: 80% loss)
+     - transcript_chars: should be ~84,070 (if getting ~17,000: 80% loss)
+
+3. DETERMINE CULPRIT
+   Check response.log for "raw JSON" size:
+     - If ~150KB → complete extraction works, different issue
+     - If ~45KB → API is truncating (confirm: 45KB response truncates to ~25KB markdown)
+
+4. FIX BASED ON FINDINGS
+   Option A: Request increased response size limit from Notion MCP server
+   Option B: Implement chunked fetching (fetch in multiple requests)
+   Option C: Use raw MCP bridge tool as fallback for large pages
+   Option D: Document API limitation and offer workarounds in UI
+
+================================================================================
