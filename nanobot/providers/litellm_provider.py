@@ -1,14 +1,20 @@
 """LiteLLM provider implementation for multi-provider support."""
 
+import asyncio
 import json
 import os
 from typing import Any
 
 import litellm
 from litellm import acompletion
+from loguru import logger
 
 from nanobot.providers.base import LLMProvider, LLMResponse, ToolCallRequest
 from nanobot.providers.registry import find_by_model, find_gateway
+
+# Default timeout for LLM API calls (seconds).
+# OpenRouter can be slow with large contexts; 120s is generous but prevents infinite hangs.
+LLM_REQUEST_TIMEOUT = 120
 
 
 class LiteLLMProvider(LLMProvider):
@@ -144,10 +150,29 @@ class LiteLLMProvider(LLMProvider):
             kwargs["tool_choice"] = "auto"
         
         try:
-            response = await acompletion(**kwargs)
-            return self._parse_response(response)
+            response = await asyncio.wait_for(
+                acompletion(**kwargs),
+                timeout=LLM_REQUEST_TIMEOUT,
+            )
+            result = self._parse_response(response)
+            # Log token usage for monitoring
+            if result.usage:
+                logger.debug(
+                    f"[llm] {model} — {result.usage.get('prompt_tokens', '?')}p + "
+                    f"{result.usage.get('completion_tokens', '?')}c = "
+                    f"{result.usage.get('total_tokens', '?')}t tokens, "
+                    f"finish={result.finish_reason}"
+                )
+            return result
+        except asyncio.TimeoutError:
+            logger.error(f"[llm] Request timed out after {LLM_REQUEST_TIMEOUT}s for {model}")
+            return LLMResponse(
+                content=f"Error: LLM request timed out after {LLM_REQUEST_TIMEOUT} seconds. "
+                        "The model may be overloaded. Please try again.",
+                finish_reason="error",
+            )
         except Exception as e:
-            # Return error as content for graceful handling
+            logger.error(f"[llm] Error calling {model}: {e}")
             return LLMResponse(
                 content=f"Error calling LLM: {str(e)}",
                 finish_reason="error",

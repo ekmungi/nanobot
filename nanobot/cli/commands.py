@@ -19,6 +19,17 @@ app = typer.Typer(
     no_args_is_help=True,
 )
 
+# On Windows, Rich's LegacyWindowsTerm writes through stdout which uses cp1252
+# encoding by default. Reconfigure stdout to UTF-8 so Unicode characters
+# (emoji, checkmarks, etc.) don't cause UnicodeEncodeError.
+if os.name == "nt":
+    import sys as _sys
+    try:
+        _sys.stdout.reconfigure(encoding="utf-8", errors="replace")  # type: ignore[union-attr]
+        _sys.stderr.reconfigure(encoding="utf-8", errors="replace")  # type: ignore[union-attr]
+    except (AttributeError, OSError):
+        pass  # Not a TextIOWrapper (e.g., already redirected)
+
 console = Console()
 
 # ---------------------------------------------------------------------------
@@ -308,11 +319,13 @@ def gateway(
         workspace=config.workspace_path,
         model=config.agents.defaults.model,
         max_iterations=config.agents.defaults.max_tool_iterations,
+        max_tokens=config.agents.defaults.max_tokens,
         brave_api_key=config.tools.web.search.api_key or None,
         exec_config=config.tools.exec,
         cron_service=cron,
         restrict_to_workspace=config.tools.restrict_to_workspace,
         session_manager=session_manager,
+        mcp_server_configs=config.mcp_servers if config.mcp_servers else None,
     )
     
     # Set cron callback (needs agent)
@@ -373,6 +386,7 @@ def gateway(
             heartbeat.stop()
             cron.stop()
             agent.stop()
+            await agent.cleanup()
             await channels.stop_all()
     
     asyncio.run(run())
@@ -407,6 +421,7 @@ def agent(
         brave_api_key=config.tools.web.search.api_key or None,
         exec_config=config.tools.exec,
         restrict_to_workspace=config.tools.restrict_to_workspace,
+        mcp_server_configs=config.mcp_servers if config.mcp_servers else None,
     )
     
     if message:
@@ -742,7 +757,7 @@ def status():
         from nanobot.providers.registry import PROVIDERS
 
         console.print(f"Model: {config.agents.defaults.model}")
-        
+
         # Check API keys from registry
         for spec in PROVIDERS:
             p = getattr(config.providers, spec.name, None)
@@ -757,6 +772,24 @@ def status():
             else:
                 has_key = bool(p.api_key)
                 console.print(f"{spec.label}: {'[green]✓[/green]' if has_key else '[dim]not set[/dim]'}")
+
+        # Channels
+        console.print()
+        web = config.channels.web
+        if web.enabled:
+            console.print(f"Web channel: [green]✓ http://{web.host}:{web.port}[/green]")
+
+        # MCP servers
+        if config.mcp_servers:
+            enabled = [s for s in config.mcp_servers if s.enabled and s.name and s.command]
+            if enabled:
+                console.print(f"MCP servers: [green]✓ {len(enabled)} configured[/green]")
+                for s in enabled:
+                    console.print(f"  - {s.name} ({s.command} {' '.join(s.args[:2])})")
+            else:
+                console.print("MCP servers: [dim]none enabled[/dim]")
+        else:
+            console.print("MCP servers: [dim]none configured[/dim]")
 
 
 if __name__ == "__main__":

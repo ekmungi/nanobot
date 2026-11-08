@@ -72,10 +72,27 @@ def _migrate_config(data: dict) -> dict:
     return data
 
 
-def convert_keys(data: Any) -> Any:
-    """Convert camelCase keys to snake_case for Pydantic."""
+# Keys whose dict values should NOT have their sub-keys converted.
+# These contain user-defined mappings (env vars, HTTP headers) where the
+# key names are meaningful and must stay as-is.
+_PRESERVE_VALUE_KEYS = frozenset({"env", "extra_headers", "extraHeaders"})
+
+
+def convert_keys(data: Any, _preserve: bool = False) -> Any:
+    """Convert camelCase keys to snake_case for Pydantic.
+
+    Keys listed in _PRESERVE_VALUE_KEYS have their *values* passed through
+    without key conversion, so environment variable names like NOTION_TOKEN
+    and header names like X-Custom-Header stay intact.
+    """
     if isinstance(data, dict):
-        return {camel_to_snake(k): convert_keys(v) for k, v in data.items()}
+        if _preserve:
+            # Don't convert keys in this dict (it's an env/headers map)
+            return {k: convert_keys(v) for k, v in data.items()}
+        return {
+            camel_to_snake(k): convert_keys(v, _preserve=(camel_to_snake(k) in _PRESERVE_VALUE_KEYS))
+            for k, v in data.items()
+        }
     if isinstance(data, list):
         return [convert_keys(item) for item in data]
     return data

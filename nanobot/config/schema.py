@@ -47,6 +47,15 @@ class DiscordConfig(BaseModel):
     intents: int = 37377  # GUILDS + GUILD_MESSAGES + DIRECT_MESSAGES + MESSAGE_CONTENT
 
 
+class WebConfig(BaseModel):
+    """Web chat channel configuration."""
+    enabled: bool = False
+    host: str = "0.0.0.0"
+    port: int = 18800
+    token: str = ""  # Auth token for web access
+    allow_from: list[str] = Field(default_factory=list)
+
+
 class ChannelsConfig(BaseModel):
     """Configuration for chat channels."""
     whatsapp: WhatsAppConfig = Field(default_factory=WhatsAppConfig)
@@ -54,6 +63,7 @@ class ChannelsConfig(BaseModel):
     discord: DiscordConfig = Field(default_factory=DiscordConfig)
     feishu: FeishuConfig = Field(default_factory=FeishuConfig)
     dingtalk: DingTalkConfig = Field(default_factory=DingTalkConfig)
+    web: WebConfig = Field(default_factory=WebConfig)
 
 
 class AgentDefaults(BaseModel):
@@ -121,6 +131,16 @@ class ToolsConfig(BaseModel):
     restrict_to_workspace: bool = False  # If true, restrict all tool access to workspace directory
 
 
+class MCPServerConfig(BaseModel):
+    """Configuration for a single MCP server."""
+    name: str = ""
+    command: str = ""
+    args: list[str] = Field(default_factory=list)
+    env: dict[str, str] = Field(default_factory=dict)
+    enabled: bool = True
+    semantic_wrappers: bool | None = None  # true=force wrappers, false=raw bridge, None=auto-detect
+
+
 class Config(BaseSettings):
     """Root configuration for nanobot."""
     agents: AgentsConfig = Field(default_factory=AgentsConfig)
@@ -128,6 +148,7 @@ class Config(BaseSettings):
     providers: ProvidersConfig = Field(default_factory=ProvidersConfig)
     gateway: GatewayConfig = Field(default_factory=GatewayConfig)
     tools: ToolsConfig = Field(default_factory=ToolsConfig)
+    mcp_servers: list[MCPServerConfig] = Field(default_factory=list)
     
     @property
     def workspace_path(self) -> Path:

@@ -1,0 +1,37 @@
+{
+  "appId": "com.nanobot.desktop",
+  "productName": "nanobot",
+  "artifactName": "${productName}-${version}.${ext}",
+  "files": [
+    "main.js",
+    "preload.js",
+    "node_modules/**/*",
+    "../nanobot/channels/web_static/**/*"
+  ],
+  "directories": {
+    "buildResources": "assets"
+  },
+  "win": {
+    "target": [
+      {
+        "target": "nsis",
+        "arch": [
+          "x64"
+        ]
+      },
+      {
+        "target": "portable",
+        "arch": [
+          "x64"
+        ]
+      }
+    ]
+  },
+  "nsis": {
+    "oneClick": false,
+    "allowToChangeInstallationDirectory": true,
+    "createDesktopShortcut": true,
+    "createStartMenuShortcut": true,
+    "shortcutName": "nanobot"
+  }
+}

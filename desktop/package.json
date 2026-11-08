@@ -1,0 +1,61 @@
+{
+  "name": "nanobot-desktop",
+  "version": "1.0.0",
+  "description": "Desktop application for nanobot AI assistant",
+  "main": "main.js",
+  "homepage": "./",
+  "author": "Anant",
+  "license": "MIT",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron . --dev",
+    "build": "electron-builder",
+    "build:win": "electron-builder --win --publish never",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder"
+  },
+  "devDependencies": {
+    "electron": "^28.0.0",
+    "electron-builder": "^24.6.4"
+  },
+  "build": {
+    "appId": "com.nanobot.desktop",
+    "productName": "nanobot",
+    "files": [
+      "main.js",
+      "preload.js",
+      "../nanobot/channels/web_static/index.html"
+    ],
+    "directories": {
+      "buildResources": "assets"
+    },
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "certificateFile": null,
+      "certificatePassword": null,
+      "signingHashAlgorithms": [
+        "sha256"
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "nanobot"
+    }
+  }
+}

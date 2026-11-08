@@ -54,7 +54,22 @@ config.json
 # Claude Code project-specific
 .claude/
 .assets
+CLAUDE.md
+instructions/
 
 # Temporary files
 *.tmp
 *.log
+
+# Desktop app build artifacts
+desktop/node_modules/
+desktop/dist/
+desktop/package-lock.json
+
+# Internal dev notes (kept locally, not tracked in git)
+docs/20260212_*
+docs/20260213_*
+docs/IMPLEMENTATION_PLAN.md
+docs/README_ANALYSIS.md
+docs/COMMUNICATION.md
+docs/INDEX_UI_DOCUMENTATION.md
